@@ -3,20 +3,29 @@ var POST_CHANNEL = 'YOUR_SLACK_CHANNEL';
 var SHEET_NAME = '休暇チェックリスト';
 var CALENDAR_WORD = '[休暇]'; // カレンダーに [休暇] の文字が入っているときだけフック
 
+/*
+ライブラリの設定
+リソース → ライブラリ → ライブラリを検索に下のIDを入力 → 検索
+追加されたライブラリが出てくるので、バージョンを選択する
+*/
 
-// スラックAPI初回利用時のみ使用 トークン有効期限切れるまでOK
+
+var _ = underscoreGS; // underscoreGS v3  ID: 1yzaSmLB2aNXtKqIrSZ92SA4D14xPNdZOo3LQRH2Zc6DK6gHRpRK_StrT
+SlackApp;             // SlackApp     v22 ID: 1on93YOYfSmV92R5q59NpKmsyWIQD8qnoLYk-gkQBI92C58SPyA2x1-bq
+
+
+// SlackAPI初回利用時のみ使用 トークン有効期限切れるまでOK
 function saveToken() {
   PropertiesService.getScriptProperties().setProperty('token', YOUR_API_TOKEN);
 }
 
 function createMessage(aCalData, profile) {
-  var text = '[superior1] [superior2] [superior3]\nお疲れ様です。\n本日、有給休暇をいただいております。\nメンション付けていただければ、返事はできますので、\nお手数をおかけいたしますがご認識のほどよろしくお願いいたします。';
   var title = aCalData.getTitle().replace(CALENDAR_WORD, '');
-
-  text = text.replace('[holidayName]', title);
-  text = text.replace('[superior1]', profile.superior1);
-  text = text.replace('[superior2]', profile.superior2);
-  text = text.replace('[superior3]', profile.superior3);
+  var text = profile.superior1 + profile.superior2 + profile.superior3 + '\n'
+           + 'お疲れ様です。\n'
+           + '本日、'+ title + 'をいただいております。\n'
+           + 'メンション付けていただければ、返事はできますので、\n'
+           + 'お手数をおかけいたしますがご認識のほどよろしくお願いいたします。';
   return text;
 }
 
@@ -34,13 +43,13 @@ function postMessage(aMessage, fromName) {
   var targetChannelName = POST_CHANNEL;
   var targetChannel = null;
 
-  underscoreGS._find(channelList, function(vals) {
+  _._find(channelList, function(vals) {
     if (targetChannelName === vals.name) {
       targetChannel = vals;
     }
   });
 
-  underscoreGS._find(userList, function(vals) {
+  _._find(userList, function(vals) {
     if (targetChannelName === vals.name) {
       targetChannel = vals;
     }
@@ -93,8 +102,8 @@ function getCalendarToday(_calendarName) {
 
   var myCal=CalendarApp.getCalendarById(_calendarName); //特定のIDのカレンダーを取得
 
-  var startDate=new Date(); //取得開始日
-  var endDate= new Date();
+  var startDate = new Date(); //取得開始日
+  var endDate   = new Date();
   startDate.setHours(0);
   startDate.setMinutes(0);
   startDate.setSeconds(0);
@@ -102,8 +111,9 @@ function getCalendarToday(_calendarName) {
   endDate.setMinutes(59);
   endDate.setSeconds(59);
 
-//   Logger.log(startDate);
-//   Logger.log(endDate);
+   Logger.log(startDate);
+   Logger.log(endDate);
+
 
 
   return myCal.getEvents(startDate,endDate); //カレンダーのイベントを取得
